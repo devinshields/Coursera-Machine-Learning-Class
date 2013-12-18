@@ -13,15 +13,8 @@ J = 0;
 % Instructions: Compute the cost of a particular choice of theta
 %               You should set J to the cost.
 
-
-%disp('LOG: Start Computing Cost');
-
 z = X*theta - y;
-J = (z' * z) / (2 * m);
-
-%disp('LOG: End Computing Cost');
-
-
+J = (z' * z) / (2 * m); % normalized sum of squares for distance between predcted & actual y values
 
 % =========================================================================
 
