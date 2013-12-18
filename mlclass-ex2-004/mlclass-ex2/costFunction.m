@@ -20,6 +20,8 @@ grad = zeros(size(theta));
 % Note: grad should have the same dimensions as theta
 %
 
+% 'Log: running cost function'
+
 
 % non-vectorized cost function (for testing/a first go)
 J = 0;
