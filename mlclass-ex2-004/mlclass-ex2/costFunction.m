@@ -20,7 +20,7 @@ grad = zeros(size(theta));
 % Note: grad should have the same dimensions as theta
 %
 
-% 'Log: running cost function'
+
 
 
 % non-vectorized cost function (for testing/a first go)
@@ -30,6 +30,8 @@ for i = 1:m
   J += (-1 * y(i) * log(h))  - ((1 - y(i)) * log(1 - h));
 end
 J /= m;
+
+
 
 
 % non-vectorized gradient function
