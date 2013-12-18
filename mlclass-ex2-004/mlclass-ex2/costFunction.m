@@ -23,6 +23,26 @@ grad = zeros(size(theta));
 
 
 
+% non-vectorized cost function (for testing/a first go)
+J = 0;
+for i = 1:m
+  h = sigmoid(X(i, :) * theta);
+  J += (-1 * y(i) * log(h))  - ((1 - y(i)) * log(1 - h));
+end
+J /= m;
+
+
+
+
+% non-vectorized gradient function
+for j = 1:length(theta)
+  for i = 1:m
+    h        = sigmoid(X(i, :) * theta);
+    grad(j) += (h - y(i)) * X(i, j);
+  end
+  grad(j) /= m;
+end
+
 
 
 
