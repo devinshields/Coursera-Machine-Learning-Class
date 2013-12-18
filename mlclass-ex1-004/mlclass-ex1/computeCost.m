@@ -14,6 +14,12 @@ J = 0;
 %               You should set J to the cost.
 
 
+%disp('LOG: Start Computing Cost');
+
+z = X*theta - y;
+J = (z' * z) / (2 * m);
+
+%disp('LOG: End Computing Cost');
 
 
 
