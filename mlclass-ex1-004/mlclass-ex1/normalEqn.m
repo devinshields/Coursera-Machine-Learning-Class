@@ -12,7 +12,12 @@ theta = zeros(size(X, 2), 1);
 
 % ---------------------- Sample Solution ----------------------
 
+% this is cheating/using the built in normal equation solver.
+% the real way is:
+%     theta = (X' * X)^-1 * X' * y;
 
+
+theta = X\y;
 
 
 % -------------------------------------------------------------

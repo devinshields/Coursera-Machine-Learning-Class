@@ -16,21 +16,18 @@ for iter = 1:num_iters
     % Hint: While debugging, it can be useful to print out the values
     %       of the cost function (computeCostMulti) and gradient here.
     %
+    
+    % multi-variable partial gradient calculation maths:
+    %     http://www.holehouse.org/mlclass/04_Linear_Regression_with_multiple_variables.html
 
-
-
-
-
-
-
-
-
-
+    theta = theta - (X' * (X * theta - y)) * (alpha / m);
 
     % ============================================================
 
     % Save the cost J in every iteration    
     J_history(iter) = computeCostMulti(X, y, theta);
+    %fprintf('Log: Cost Function at iteration %i Value: %f\n', iter, J_history(iter));
+    %theta
 
 end
 
