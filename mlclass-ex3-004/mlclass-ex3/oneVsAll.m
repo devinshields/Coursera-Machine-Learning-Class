@@ -7,26 +7,45 @@ function [all_theta] = oneVsAll(X, y, num_labels, lambda)
 %   in a matrix all_theta, where the i-th row of all_theta corresponds 
 %   to the classifier for label i
 
+
+
 % Some useful variables
-m = size(X, 1);
-n = size(X, 2);
+m = size(X, 1);                 % sample size
+n = size(X, 2);                 % degrees of freedom - 1/parameter count
+
+
 
 % You need to return the following variables correctly 
 all_theta = zeros(num_labels, n + 1);
 
-% Add ones to the X data matrix
+
+Y         = zeros(length(y), num_labels);     % update columns are boolean,
+for class_num = 1:num_labels                  % similar to 2 class LogReg
+  Y(:, class_num) = (class_num == y);
+end
+
+
+% prepend an intercept term column to the X data matrix
 X = [ones(m, 1) X];
+
+
+
+%% optional breakpoint
+%keyboard
+
+
+
 
 % ====================== YOUR CODE HERE ======================
 % Instructions: You should complete the following code to train num_labels
 %               logistic regression classifiers with regularization
 %               parameter lambda. 
-%
 % Hint: theta(:) will return a column vector.
 %
 % Hint: You can use y == c to obtain a vector of 1's and 0's that tell use 
 %       whether the ground truth is true/false for this class.
-%
+
+
 % Note: For this assignment, we recommend using fmincg to optimize the cost
 %       function. It is okay to use a for-loop (for c = 1:num_labels) to
 %       loop over the different classes.
