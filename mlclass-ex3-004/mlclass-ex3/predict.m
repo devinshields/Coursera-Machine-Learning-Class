@@ -24,7 +24,7 @@ p = zeros(size(X, 1), 1);
 
 
 
-
+p = sigmoid(X * theta);
 
 
 
