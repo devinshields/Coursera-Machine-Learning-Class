@@ -1,4 +1,4 @@
-function [J, grad] = lrCostFunction(theta, X, y, lambda)
+function [J, grad] = lrCostFunction1(theta, X, y, lambda)
 %LRCOSTFUNCTION Compute cost and gradient for logistic regression with 
 %regularization
 %   J = LRCOSTFUNCTION(theta, X, y, lambda) computes the cost of using
@@ -29,19 +29,33 @@ grad = zeros(size(theta));
 %
 
 
-%% cost function %%
-h  = sigmoid(X * theta);
-s0 = (1/m) * (-y' * log(h) + (y - 1)' * log(1 - h));
-s1 = (theta(2:end)' * theta(2:end)) * lambda / 2 / m;
-J = s0 + s1;
+
+n = size(X,2);
+
+h = sigmoid(X*theta);
+
+% Cost function (apenas seguindo a formula)
+J = ( (-y)' *log(h)-(1-y)' * log(1-h))/m;
+
+% excluindo o theta0 - devemos ignorar o Theta0 na regularizacao
+theta1 = [0 ; theta(2:size(theta), :)];
+
+% somatorio do lambda - REGULARIZATION
+soma = sum(theta1'*theta1);
+
+% penalty pra cada feature
+p = (lambda*soma) / (2*m);
+
+% J + penalty
+J = J + p;
+
+% grad.. a formula eh (1/m SOMATORIO ( (h0(x) - y) * X + lambda ).. para j >= 1
+% para j == 0 nao devemos considerar a soma com lambda 
+% (por isso zeramos a primera posicao do theta1)
+grad =  ( X' * (h - y) + lambda*theta1 ) / m;
 
 
-%% gradient at theta %%
-g0   = (1/m)        * (X' * (h - y));
-g1   = (lambda / m) * [0, ones(1, length(theta)-1)]' .* theta;
 
-grad = g0 + g1;
-%%%%%%%%%%%%%%%%%%%%%%
 
 grad = grad(:);
 
