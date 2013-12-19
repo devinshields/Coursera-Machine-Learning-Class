@@ -1,38 +1,28 @@
 function [all_theta] = oneVsAll(X, y, num_labels, lambda)
-%ONEVSALL trains multiple logistic regression classifiers and returns all
-%the classifiers in a matrix all_theta, where the i-th row of all_theta 
-%corresponds to the classifier for label i
-%   [all_theta] = ONEVSALL(X, y, num_labels, lambda) trains num_labels
-%   logisitc regression classifiers and returns each of these classifiers
-%   in a matrix all_theta, where the i-th row of all_theta corresponds 
-%   to the classifier for label i
+
+  m = size(X, 1); % sample size
+  n = size(X, 2); % degrees of freedom +1. or bobanparameter count
+
+  % prepend an intercept term column to the X data matrix
+  X = [ones(m, 1) X];
+
+  % init a blank multi-model paramter matrix. Will eventually get output.
+  all_theta = zeros(num_labels, n + 1);
 
 
 
-% Some useful variables
-m = size(X, 1);                 % sample size
-n = size(X, 2);                 % degrees of freedom - 1/parameter count
+  % ============= Serious Work Gets Done Here Guys ======================
+  %keyboard % !!!
+  
+  warning('off', 'Octave:possible-matlab-short-circuit-operator');
 
+  for class_num = 1:num_labels
+    [theta] = fmincg (@(t)(lrCostFunction(t, X, y == class_num, lambda)), zeros(n + 1, 1), optimset('GradObj', 'on', 'MaxIter', 50));
 
+    all_theta(class_num, :) = theta';
+  end
 
-% You need to return the following variables correctly 
-all_theta = zeros(num_labels, n + 1);
-
-
-Y         = zeros(length(y), num_labels);     % update columns are boolean,
-for class_num = 1:num_labels                  % similar to 2 class LogReg
-  Y(:, class_num) = (class_num == y);
-end
-
-
-% prepend an intercept term column to the X data matrix
-X = [ones(m, 1) X];
-
-
-
-%% optional breakpoint
-%keyboard
-
+  
 
 
 
@@ -44,8 +34,6 @@ X = [ones(m, 1) X];
 %
 % Hint: You can use y == c to obtain a vector of 1's and 0's that tell use 
 %       whether the ground truth is true/false for this class.
-
-
 % Note: For this assignment, we recommend using fmincg to optimize the cost
 %       function. It is okay to use a for-loop (for c = 1:num_labels) to
 %       loop over the different classes.
