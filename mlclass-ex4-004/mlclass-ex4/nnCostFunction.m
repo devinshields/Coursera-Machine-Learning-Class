@@ -72,13 +72,14 @@ Y = eye(num_labels)(y,:);
 % get element-wise errors over (i, k), then agg everything
 D1 = -Y    .* log(A3);
 D2 = (1-Y) .* log(1-A3);
-J = sum((D1 - D2)(:)) / m;
-
-LOG('found cost: J == %f', J)
+s0 = (1/m) * sum((D1 - D2)(:));
 
 
+% regularization cost - ignore bias terms in each firest column
+reg_params = [Theta1(:,2:end)(:) ; Theta2(:,2:end)(:)];
+s1         = (lambda / 2 / m) * (reg_params' * reg_params);
 
-
+J          = s0 + s1;
 
 
 
