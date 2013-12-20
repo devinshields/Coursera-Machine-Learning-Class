@@ -34,6 +34,20 @@ J = 0;
 Theta1_grad = zeros(size(Theta1));
 Theta2_grad = zeros(size(Theta2));
 
+
+
+
+% helpful logging
+LOG('size(X) == %s', mat2str(size(X)))
+LOG('size(y) == %s', mat2str(size(y)))
+LOG('size(Theta1) == %s', mat2str(size(Theta1)))
+LOG('size(Theta2) == %s', mat2str(size(Theta2)))
+LOG('size(nn_params) == %s', mat2str(size(nn_params)))
+
+
+
+
+
 % ====================== YOUR CODE HERE ======================
 % Instructions: You should complete the code by working through the
 %               following parts.
@@ -44,9 +58,35 @@ Theta2_grad = zeros(size(Theta2));
 %         computed in ex4.m
 %
 
-LOG('size(X) == %s', mat2str(size(X)))
-LOG('size(y) == %s', mat2str(size(y)))
-LOG('size(nn_params) == %s', mat2str(size(nn_params)))
+
+%  forward propogating example data through the network
+A2 = sigmoid([ones(m, 1) X ]           * Theta1');
+A3 = sigmoid([ones(size(A2, 1), 1) A2] * Theta2');
+
+
+% map the vector y into a boolean class membership matrix, Y.
+%     borrowed from: https://gist.github.com/denzilc/1360709
+Y = eye(num_labels)(y,:);
+
+
+% get element-wise errors over (i, k), then agg everything
+D1 = -Y    .* log(A3);
+D2 = (1-Y) .* log(1-A3);
+J = sum((D1 - D2)(:)) / m;
+
+LOG('found cost: J == %f', J)
+
+
+
+
+
+
+
+%% map maximum value predictions/indicies into classifications
+%[x, p] = max(X2, [], 2);
+
+
+
 
 
 %keyboard
