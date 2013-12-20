@@ -3,18 +3,6 @@ function [J grad] = nnCostFunction(nn_params, ...
                                    hidden_layer_size, ...
                                    num_labels, ...
                                    X, y, lambda)
-%NNCOSTFUNCTION Implements the neural network cost function for a two layer
-%neural network which performs classification
-%   [J grad] = NNCOSTFUNCTON(nn_params, hidden_layer_size, num_labels, ...
-%   X, y, lambda) computes the cost and gradient of the neural network. The
-%   parameters for the neural network are "unrolled" into the vector
-%   nn_params and need to be converted back into the weight matrices. 
-% 
-%   The returned parameter grad should be a "unrolled" vector of the
-%   partial derivatives of the neural network.
-%
-
-
 LOG('--------------- running nnCostFunction ---------------')
 
 
@@ -41,108 +29,82 @@ LOG('size(y) == %s', mat2str(size(y)))
 LOG('size(Theta1) == %s', mat2str(size(Theta1)))
 LOG('size(Theta2) == %s', mat2str(size(Theta2)))
 LOG('size(nn_params) == %s', mat2str(size(nn_params)))
+LOG("\n\n")
 
 
 % ====================== YOUR CODE HERE ======================
-% Instructions: You should complete the code by working through the
-%               following parts.
-%
-% Part 1: Feedforward the neural network and return the cost in the
-%         variable J. After implementing Part 1, you can verify that your
-%         cost function computation is correct by verifying the cost
-%         computed in ex4.m
-%
+% Part 1: Feedforward the network.
 
-%  forward propogating features through the network
-A2 = sigmoid([ones(m, 1) X]           * Theta1');
-A3 = sigmoid([ones(size(A2, 1), 1) A2] * Theta2');
+% prepend a bias column, transform y into a binary class membership matrix
+X = [ones(m, 1) X];
+y = eye(num_labels)(y,:);
+ 
+
+% forward propogate, cache activation levels for the backprop step
+a1 = X;                         % layer 1
+z2 = a1 * Theta1';
+
+a2 = sigmoid(z2);               % layer 2
+a2 = [ones(size(a2, 1),1) a2];  %   append bias
+
+z3 = a2 * Theta2';
+a3 = sigmoid(z3);               % layer 3
+ 
+
+% ====================== log forward propogation ======================
+LOG("------------------------------------------")
+LOG('size(a1) == %s', mat2str(size(a1)))
+LOG('size(z2) == %s', mat2str(size(z2)))
+LOG('size(a2) == %s', mat2str(size(a1)))
+LOG('size(z3) == %s', mat2str(size(z2)))
+LOG('size(a3) == %s', mat2str(size(a3)))
+LOG("\n\n")
 
 
-% map the vector y (in range(1, num_clases)) into a boolean membership matrix, Y.
-%     borrowed from: https://gist.github.com/denzilc/1360709
-Y = eye(num_labels)(y,:);
+% ====================== calculate the error cost ======================
+% get element-wise errors, then reduce-agg the whole matrix to a scalar
+c0 = (1/m) * sum(((-y .* log(a3)) - (1-y) .* log(1-a3))(:));
 
-
-% get element-wise errors, then reduce-agg the whole matrix
-D1 = -Y    .* log(A3);
-D2 = (1-Y) .* log(1-A3);
-s0 = (1/m) * sum((D1 - D2)(:));
-
-
-% regularization cost - ignore bias terms in each firest column
+% add regularization cost - ignore bias terms in each firest column
 reg_params = [Theta1(:,2:end)(:) ; Theta2(:,2:end)(:)];
-s1         = (lambda / 2 / m) * (reg_params' * reg_params);
+c1         = (lambda / 2 / m) * (reg_params' * reg_params);
 
-% sum to get the final penalty
-J = s0 + s1;
+J = c0 + c1;
 
 
-% Part 2: Implement the backpropagation algorithm to compute the gradients
-%         Theta1_grad and Theta2_grad. You should return the partial derivatives of
-%         the cost function with respect to Theta1 and Theta2 in Theta1_grad and
-%         Theta2_grad, respectively. After implementing Part 2, you can check
-%         that your implementation is correct by running checkNNGradients
-%
-%         Note: The vector y passed into the function is a vector of labels
-%               containing values from 1..K. You need to map this vector into a 
-%               binary vector of 1's and 0's to be used with the neural network
-%               cost function.
-%
-%         Hint: We recommend implementing backpropagation using a for-loop
-%               over the training examples if you are implementing it for the 
-%               first time.
-%
+% =========== back propogate errors, one node layer at a time =================
+d3 = a3 - y;                                            % output node errors
+d2 = (d3 * Theta2(:,2:end)) .* sigmoidGradient(z2);     % hidden node errors, ignore the bias parameter
 
-% back propagate classifications errors for each example in the training set
-X0 = [ones(m, 1) X];
+% the desired diff (delta cap) is a weighted average
+%     of the n-1 layer's activation (a~)
+%     and the change we want to induce (d+)
+delta_cap2 = d3' * a2; 
+delta_cap1 = d2' * a1;
 
-for t = 1:m
-  xt  = X0(t, :);
-  yt  = Y(t, :);
-    
-  %  forward propogate
-  a1 = xt;
-  a2 = sigmoid(  a1    * Theta1');
-  a3 = sigmoid([1, a2] * Theta2');
+% get the gradient, but scaled on
+%       learning rate (lambda)
+%       sample size (m)
+Theta1_grad       = ((1/m) * delta_cap1) + ((lambda/m) * (Theta1));
+Theta1_grad(:,1) -= ((lambda/m) * (Theta1(:,1)));                     % remove the regularization term from bias nodes
 
-  % back propogate
-  d3 = a3 - yt;
-  d2 = Theta2' * d3 .* 
-  keyboard
-
-end
+Theta2_grad       = ((1/m) * delta_cap2) + ((lambda/m) * (Theta2));
+Theta2_grad(:,1) -= ((lambda/m) * (Theta2(:,1)));                     % remove the regularization term from bias nodes
 
 
 
-
-
-% Part 3: Implement regularization with the cost function and gradients.
-%
-%         Hint: You can implement this around the code for
-%               backpropagation. That is, you can compute the gradients for
-%               the regularization separately and then add them to Theta1_grad
-%               and Theta2_grad from Part 2.
-%
-
-
-
+% ====================== logging ======================
+LOG("------------------------------------------")
+LOG('size(d3) == %s', mat2str(size(d3)))
+LOG('size(d2) == %s', mat2str(size(d2)))
+LOG('size(delta_cap2) == %s', mat2str(size(delta_cap2)))
+LOG('size(delta_cap1) == %s', mat2str(size(delta_cap1)))
+LOG('size(Theta1_grad) == %s', mat2str(size(Theta1_grad)))
+LOG('size(Theta2_grad) == %s', mat2str(size(Theta2_grad)))
+LOG("\n\n")
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-% -------------------------------------------------------------
 
 % =========================================================================
 
