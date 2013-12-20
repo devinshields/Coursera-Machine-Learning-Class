@@ -14,6 +14,10 @@ function [J grad] = nnCostFunction(nn_params, ...
 %   partial derivatives of the neural network.
 %
 
+
+LOG('--------------- running nnCostFunction ---------------')
+
+
 % Reshape nn_params back into the parameters Theta1 and Theta2, the weight matrices
 % for our 2 layer neural network
 Theta1 = reshape(nn_params(1:hidden_layer_size * (input_layer_size + 1)), ...
@@ -40,13 +44,12 @@ Theta2_grad = zeros(size(Theta2));
 %         computed in ex4.m
 %
 
-disp('LOG: running nnCostFunction');
-disp(sprintf('LOG: size(X) == %s', mat2str(size(X))));
-disp(sprintf('LOG: size(y) == %s', mat2str(size(y))));
-disp(sprintf('LOG: size(nn_params) == %s', mat2str(size(nn_params))));
+LOG('size(X) == %s', mat2str(size(X)))
+LOG('size(y) == %s', mat2str(size(y)))
+LOG('size(nn_params) == %s', mat2str(size(nn_params)))
 
 
-keyboard
+%keyboard
 
 % Part 2: Implement the backpropagation algorithm to compute the gradients
 %         Theta1_grad and Theta2_grad. You should return the partial derivatives of
@@ -96,5 +99,7 @@ keyboard
 % Unroll gradients
 grad = [Theta1_grad(:) ; Theta2_grad(:)];
 
+
+LOG('--------------- nnCostFunction complete ---------------')
 
 end
