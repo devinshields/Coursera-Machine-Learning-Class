@@ -55,11 +55,32 @@ error_val   = zeros(m, 1);
 
 
 
+LOG('---------- running learningCurve -------------------')
+
+% ====================== helpful logging ======================
+LOG('size(X) == %s', mat2str(size(X)))
+LOG('size(y) == %s', mat2str(size(y)))
+LOG('size(Xval) == %s', mat2str(size(Xval)))
+LOG('size(yval) == %s', mat2str(size(yval)))
+LOG("\n\n")
 
 
+% for all posible training sample sizes (1..m)
+for i = 1:m
+  Xtrain = X(1:i,:);
+  ytrain = y(1:i);
+  
+  % fit the regression params
+  theta = trainLinearReg(Xtrain, ytrain, lambda);
+
+  % and append to the output vectors
+  error_train(i) = linearRegCostFunction(Xtrain, ytrain, theta, 0); 
+  error_val(i)   = linearRegCostFunction(Xval,   yval,   theta, 0);
+
+end
 
 
-% -------------------------------------------------------------
+LOG('---------- finished learningCurve -------------------')
 
 % =========================================================================
 
